@@ -1,19 +1,18 @@
 
 
 #include <ESP8266WiFi.h>    //https://github.com/esp8266/Arduino
+#include "handleAudio.h"
 #include "handleWebpage.h"
 #include "LittleFS.h"
 
 //declaration of needed instances
+HandleAudio *handleAudio;
 HandleWebpage *handleWebpage;
    
 void setup()
 {
     Serial.begin(115200);
     Serial.print("\n");
-
-    pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
-    digitalWrite(LED_BUILTIN, HIGH);  // set led off
     
     //init little filesystem
     if (LittleFS.begin())
@@ -30,11 +29,21 @@ void setup()
     }
 
     handleWebpage = new HandleWebpage();
+    handleAudio = new HandleAudio();
+
+    handleAudio->setCallBackSoundIsDone(handleWebpage->sendSuccess);
+    handleWebpage->setCallBackSetGain(handleAudio->setGain);
+    handleWebpage->setCallBackGetGain(handleAudio->getGain);
+    handleWebpage->setCallBackPlaySound(handleAudio->playSound);
+    
     handleWebpage->setupHandleWebpage();
 
     WiFi.mode(WIFI_AP);
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-    WiFi.softAP("SleepUinoPreDev");
+    WiFi.softAP("TestI2S");
+
+    
+    
 
     // if DNSServer is started with "*" for domain name, it will reply with
     // provided IP to all DNS request
@@ -43,6 +52,9 @@ void setup()
 
 void loop()
 {   
-    dnsServer.processNextRequest();
-    handleWebpage->handleClient();
+    if (!handleAudio->isSoundPlaying())
+    {
+        dnsServer.processNextRequest();
+        handleWebpage->handleClient();
+    }
 }

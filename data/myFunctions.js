@@ -1,8 +1,7 @@
 'use strict';
 
 var UiFunc = {
-    handleFlipLed : function(){
-        var checked = $( "#flipAlarm" ).prop("checked");        
-        SleepUinoCom.setLed(checked)
+    setSliders : function  (jsonAnswer){
+        $("#sliderGain").val(jsonAnswer.gain).slider('refresh');
     },
 };

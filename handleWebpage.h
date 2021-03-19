@@ -31,18 +31,40 @@ DNSServer dnsServer;
 
 class HandleWebpage
 {
+    //type aliasing
+    //C++ version of: typedef void (*InputEvent)(const char*)
+    using CallBackSetGain = void (*) (uint8_t gainValue);
+    using CallBackGetGain = uint8_t (*)();
+    using CallBackPlaySound = void (*)();
+
     public:
         HandleWebpage();
         void setupHandleWebpage();
         
         void handleClient();
         static void sendSuccess();
+        
+        //CallBacks
+       
+        void setCallBackSetGain(CallBackSetGain callBackSetGain);
+        void setCallBackGetGain(CallBackGetGain callBackGetGain);
+
+        void setCallBackPlaySound(CallBackPlaySound callBackPlaySound);
+
 
     private:
+        CallBackSetGain _callBackSetGain = nullptr;
+        CallBackGetGain _callBackGetGain = nullptr;
+
+        CallBackPlaySound _callBackPlaySound = nullptr;
+
         void handleRoot();
         void handleWebRequests();
 
-        void handleSetLed();
+        void handleSetGain();
+        void handlePlaySound();
+        void handleSaveGain();
+        void handleGetValues();
 
         bool loadFromLittleFS(String path);
         static ESP8266WebServer *_webServer;   

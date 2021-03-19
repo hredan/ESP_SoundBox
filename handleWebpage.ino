@@ -12,31 +12,82 @@ void HandleWebpage::handleRoot() {                         // When URI / is requ
   handleWebRequests();
 }
 
-void HandleWebpage::handleSetLed(){
+void HandleWebpage::setCallBackSetGain(CallBackSetGain callBackSetGain)
+{
+  _callBackSetGain = callBackSetGain;
+}
+
+void HandleWebpage::setCallBackGetGain(CallBackGetGain callBackGetGain)
+{
+  _callBackGetGain = callBackGetGain;
+}
+
+void HandleWebpage::setCallBackPlaySound(CallBackPlaySound callBackPlaySound)
+{
+  _callBackPlaySound = callBackPlaySound;
+}
+
+void HandleWebpage::handleSetGain(){
   Serial.println("handleSetGain: " + _webServer->arg("plain"));
-  
-  if(_webServer->hasArg("led"))
+  if (_callBackSetGain != nullptr)
   {
-    String ledValue = _webServer->arg("led");
-    Serial.printf("ledValue: %s\n", ledValue.c_str());
-    if(ledValue == "true")
+    if(_webServer->hasArg("gain"))
     {
-      digitalWrite(LED_BUILTIN, LOW);
+      int gainSound = _webServer->arg("gain").toInt();
+      if (_callBackSetGain != nullptr)
+      {
+        _callBackSetGain(gainSound);
+      }
+      else
+      {
+        Serial.println("Error: _callBackSetGain == nullptr");
+      }
+      
+      _webServer->send(200, "text/plane", "{\"success\": true}");
     }
     else
     {
-      digitalWrite(LED_BUILTIN, HIGH);
+      Serial.println("Error handleSetGain: missing argument gain!");
+      _webServer->send(200, "text/plane", "{\"success\": false}");
     }
-    
-    _webServer->send(200, "text/plane", "{\"success\": true}");
   }
   else
   {
-    Serial.println("Error handleSetLed: missing argument led!");
+    Serial.println("Error: _callBackSetGain == nullptr");
     _webServer->send(200, "text/plane", "{\"success\": false}");
   }
 }
 
+void HandleWebpage::handlePlaySound() {
+  Serial.println("handlePlaySound" + _webServer->arg("plain"));
+  if(_callBackPlaySound !=nullptr)
+  {
+    _callBackPlaySound();
+  }
+  else
+  {
+    Serial.println("Error: _callBackPlaySound ==nullptr");
+    _webServer->send(200, "text/plane", "{\"success\": false}");
+  }
+  
+  
+}
+
+void HandleWebpage::handleGetValues() {  
+  String strGainSound = "0";
+  if (_callBackGetGain != nullptr)
+  {
+    strGainSound = String(_callBackGetGain());
+  }
+  else
+  {
+    Serial.println("Error: _callBackGetGainSound == null");
+  }
+  
+  String jsonAnswer = "{\"gain\": " + strGainSound + "}";
+  Serial.println("handleGetValues :send  value: " + jsonAnswer);
+  _webServer->send(200, "text/plane", jsonAnswer);
+}
 
 void HandleWebpage::handleWebRequests(){
   if(!loadFromLittleFS(_webServer->uri()))
@@ -106,7 +157,10 @@ void HandleWebpage::setupHandleWebpage()
   //Information about using std::bind -> https://github.com/esp8266/Arduino/issues/1711
 
   _webServer->on("/", HTTP_GET, std::bind(&HandleWebpage::handleRoot, this));
-  _webServer->on("/setLed", HTTP_POST, std::bind(&HandleWebpage::handleSetLed, this));
+  _webServer->on("/getValues", HTTP_GET, std::bind(&HandleWebpage::handleGetValues, this));
+  _webServer->on("/playSound", HTTP_GET, std::bind(&HandleWebpage::handlePlaySound, this));
+  _webServer->on("/setGain", HTTP_POST, std::bind(&HandleWebpage::handleSetGain, this));
+  //webServer.on("/config/changed", HTTP_POST, configChanged);
   _webServer->begin();
 }
 
