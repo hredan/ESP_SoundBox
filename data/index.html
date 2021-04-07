@@ -6,20 +6,40 @@
     <link rel="stylesheet" href="css/my-custom-theme.min.css" />
     <link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
     <link rel="stylesheet" href="css/jquery.mobile.struc.min.css" /> 
+    <link rel="stylesheet" href="css/sleepUino.css" />
     <script src="./jquery-2.2.4.min.js"></script>
     <script src="./jquery.mobile-1.4.5.min.js"></script>
 </head>
 <body> 
-    <div data-role="page" class="ui-responsive-panel">
-        <div data-role="header" data-position="inline" data-position="fixed">
-            <h1>ESPlaySoundViaSmartphone</h1>
+    <div class="su-base" data-role="page" class="ui-responsive-panel" id="page">
+        <div class="su-header ui-bar-inherit" data-role="header" role="banner">
+            <h2 class="ui-title" role="heading" aria-level="1">
+                <img src="./LogoPreDev.png" alt="ESPSoundViaSmartphone">
+            </h2>           
         </div>
         <div id="playPage">
             <div class="ui-body ui-body-a ui-corner-all">
-                <h3 id="headerAlarm" class="ui-bar ui-bar-a ui-corner-all">Sounds</h3>
-                <label id="labelSliderGain" for="sliderGain">Volume:</label>
-                <input type="range" name="sliderGain" id="sliderGain" data-highlight="true" min="2" max="100" value="25" onchange="SleepUinoCom.setAlarmVolume(this.value)">
-                <button id="playButton" class="ui-btn ui-corner-all" onclick="SleepUinoCom.playSound()">Play</button>                   
+                <h3 id="headerAlarm" class="ui-bar ui-bar-a ui-corner-all">ESP Sounds via Smartphone</h3>
+                <div>
+                    <ul data-role="listview" data-inset="true" id="list" data-split-icon="delete" data-split-theme="d">
+                        <li class='wakeListItem'>
+                            <a class='soundItem'>
+                                <label class="labelSliderGain" for="sliderGain">Volume:</label>
+                                <input type="range" name="sliderGain" data-highlight="true"  min="2" max="100" value="25" onchange="SleepUinoCom.setAlarmVolume(this.value)">
+                                <button class="ui-btn ui-corner-all playButton" onclick="SleepUinoCom.playSound()">Play</button>  
+                            </a>
+                            <a class='deleteMe'></a>
+                        </li>
+                    </ul>
+                </div>     
+                <div data-role="controlgroup" data-type="horizontal">
+                    <button id="playButton" class="ui-btn ui-corner-all" onclick="SleepUinoCom.playSound()">Stop</button>
+                    <button id="playButton" class="ui-btn ui-corner-all" onclick="SleepUinoCom.playSound()">Add</button> 
+                </div> 
+                
+                
+               
+                                  
             </div>
         </div>         
         
