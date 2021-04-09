@@ -33,38 +33,27 @@ class HandleWebpage
 {
     //type aliasing
     //C++ version of: typedef void (*InputEvent)(const char*)
-    using CallBackSetGain = void (*) (uint8_t gainValue);
-    using CallBackGetGain = uint8_t (*)();
-    using CallBackPlaySound = void (*)();
-
+    using CallBackPlaySound = void (*)(String filename, int volume);
+    using CallBackStopSound = void (*)();
     public:
-        HandleWebpage();
+        HandleWebpage(String filelist);
         void setupHandleWebpage();
         
         void handleClient();
-        static void sendSuccess();
         
         //CallBacks
-       
-        void setCallBackSetGain(CallBackSetGain callBackSetGain);
-        void setCallBackGetGain(CallBackGetGain callBackGetGain);
-
         void setCallBackPlaySound(CallBackPlaySound callBackPlaySound);
-
+        void setCallBackStopSound(CallBackStopSound callBackStopSound);
 
     private:
-        CallBackSetGain _callBackSetGain = nullptr;
-        CallBackGetGain _callBackGetGain = nullptr;
-
         CallBackPlaySound _callBackPlaySound = nullptr;
-
+        CallBackStopSound _callBackStopSound = nullptr;
+        String _filelist;
         void handleRoot();
         void handleWebRequests();
-
-        void handleSetGain();
         void handlePlaySound();
-        void handleSaveGain();
-        void handleGetValues();
+        void handleStopSound();
+        void handleGetFiles();
 
         bool loadFromLittleFS(String path);
         static ESP8266WebServer *_webServer;   

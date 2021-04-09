@@ -22,39 +22,44 @@
                 <h3 id="headerAlarm" class="ui-bar ui-bar-a ui-corner-all">ESP Sounds via Smartphone</h3>
                 <div>
                     <ul data-role="listview" data-inset="true" id="list" data-split-icon="delete" data-split-theme="d">
-                        <li class='wakeListItem'>
+                        <!-- First List Entry just for development  -->
+                        <!-- <li class='listItem'>
                             <a class='soundItem'>
+                                <label for="titel">Titel:</label>
+                                <select name="titel" class="titleSelectItem">
+                                    <option value="1">01.mp3</option>
+                                    <option value="2">02.mp3</option>
+                                </select>
                                 <label class="labelSliderGain" for="sliderGain">Volume:</label>
-                                <input type="range" name="sliderGain" data-highlight="true"  min="2" max="100" value="25" onchange="SleepUinoCom.setAlarmVolume(this.value)">
-                                <button class="ui-btn ui-corner-all playButton" onclick="SleepUinoCom.playSound()">Play</button>  
+                                <input type="range" name="sliderGain" class="sliderItem" data-highlight="true"  min="0" max="100" value="25">
+                                <button class="ui-btn ui-corner-all playButton playSound">Play</button>  
                             </a>
                             <a class='deleteMe'></a>
-                        </li>
+                        </li> -->
+                        <!-- Error Entry  -->
+                        <!-- <li class='listItem'>
+                            <a>Error: Could not find mp3 files on SD card, check ESP serial output</a>
+                        </li> -->
                     </ul>
                 </div>     
                 <div data-role="controlgroup" data-type="horizontal">
-                    <button id="playButton" class="ui-btn ui-corner-all" onclick="SleepUinoCom.playSound()">Stop</button>
-                    <button id="playButton" class="ui-btn ui-corner-all" onclick="SleepUinoCom.playSound()">Add</button> 
-                </div> 
-                
-                
-               
-                                  
+                    <button id="stopButton" class="ui-btn ui-corner-all" onclick="SleepUinoDevCom.stopSound()">Stop</button>
+                    <button id="addButton" class="ui-btn ui-corner-all" onclick="UiFunc.addItem()">Add</button> 
+                </div>           
             </div>
         </div>         
         
 </body>
 <script src="./myFunctions.js"></script>
-<script src="./SleepUinoCom.js"></script>
-<script src="./multiLangSupport.js"></script>
+<script src="./SleepUinoDevCom.js"></script>
 <script>
     'use strict';
     window.onload = function() {
         //For test without SleepUINO use SleepUinoCom.enableServerCom = false
-        SleepUinoCom.enableServerCom = false;
+        //SleepUinoDevCom.enableServerCom = false;
 
         //read an set values
-        SleepUinoCom.getValues();
+        SleepUinoDevCom.getTitleList();
     };
 </script>
 </html>

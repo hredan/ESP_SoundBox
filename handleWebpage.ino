@@ -3,23 +3,19 @@
 
 ESP8266WebServer* HandleWebpage::_webServer = nullptr;
 
-HandleWebpage::HandleWebpage()
+HandleWebpage::HandleWebpage(String filelist)
 {
   _webServer = new ESP8266WebServer(80);
+  _filelist = filelist;
 };
 
 void HandleWebpage::handleRoot() {                         // When URI / is requested, send a web page with a button to toggle the LED
   handleWebRequests();
 }
 
-void HandleWebpage::setCallBackSetGain(CallBackSetGain callBackSetGain)
+void HandleWebpage::setCallBackStopSound(CallBackStopSound callBackStopSound)
 {
-  _callBackSetGain = callBackSetGain;
-}
-
-void HandleWebpage::setCallBackGetGain(CallBackGetGain callBackGetGain)
-{
-  _callBackGetGain = callBackGetGain;
+  _callBackStopSound = callBackStopSound;
 }
 
 void HandleWebpage::setCallBackPlaySound(CallBackPlaySound callBackPlaySound)
@@ -27,66 +23,76 @@ void HandleWebpage::setCallBackPlaySound(CallBackPlaySound callBackPlaySound)
   _callBackPlaySound = callBackPlaySound;
 }
 
-void HandleWebpage::handleSetGain(){
-  Serial.println("handleSetGain: " + _webServer->arg("plain"));
-  if (_callBackSetGain != nullptr)
+void HandleWebpage::handleStopSound() {
+  Serial.println("handleStopSound" + _webServer->arg("plain"));
+  if(_callBackStopSound !=nullptr)
   {
-    if(_webServer->hasArg("gain"))
-    {
-      int gainSound = _webServer->arg("gain").toInt();
-      if (_callBackSetGain != nullptr)
-      {
-        _callBackSetGain(gainSound);
-      }
-      else
-      {
-        Serial.println("Error: _callBackSetGain == nullptr");
-      }
-      
-      _webServer->send(200, "text/plane", "{\"success\": true}");
-    }
-    else
-    {
-      Serial.println("Error handleSetGain: missing argument gain!");
-      _webServer->send(200, "text/plane", "{\"success\": false}");
-    }
+    _callBackStopSound();
+    _webServer->send(200, "text/plane", "{\"success\": true}");
   }
   else
   {
-    Serial.println("Error: _callBackSetGain == nullptr");
     _webServer->send(200, "text/plane", "{\"success\": false}");
   }
 }
 
 void HandleWebpage::handlePlaySound() {
   Serial.println("handlePlaySound" + _webServer->arg("plain"));
-  if(_callBackPlaySound !=nullptr)
+  
+  int volume = -1;
+  String filename = "";
+  bool noError = true;
+
+  if(_webServer->hasArg("volume"))
   {
-    _callBackPlaySound();
+    volume = _webServer->arg("volume").toInt();
   }
   else
   {
-    Serial.println("Error: _callBackPlaySound ==nullptr");
+    if (noError)
+    {
+      Serial.println("Error handlePlaySound: missing argument volume!");
+      noError = false;
+    }
+  }
+
+  if(noError && _webServer->hasArg("soundFile"))
+  {
+    filename = _webServer->arg("soundFile");
+  }
+  else
+  {
+    if (noError)
+    {
+      Serial.println("Error handlePlaySound: missing argument soundFile!");
+      noError = false;
+    }
+  }
+
+  if(noError && (_callBackPlaySound !=nullptr))
+  {
+    _callBackPlaySound(filename, volume);
+    _webServer->send(200, "text/plane", "{\"success\": true}");
+  }
+  else
+  {
+    if (noError)
+    {
+      Serial.println("Error: _callBackPlaySound ==nullptr");
+      noError = false;
+    }
+  }
+
+  if (!noError)
+  {
     _webServer->send(200, "text/plane", "{\"success\": false}");
   }
-  
-  
 }
 
-void HandleWebpage::handleGetValues() {  
-  String strGainSound = "0";
-  if (_callBackGetGain != nullptr)
-  {
-    strGainSound = String(_callBackGetGain());
-  }
-  else
-  {
-    Serial.println("Error: _callBackGetGainSound == null");
-  }
-  
-  String jsonAnswer = "{\"gain\": " + strGainSound + "}";
-  Serial.println("handleGetValues :send  value: " + jsonAnswer);
-  _webServer->send(200, "text/plane", jsonAnswer);
+void HandleWebpage::handleGetFiles() {  
+  //String jsonAnswer = "[\"test.mp3\",	\"ff-16b-2c-44100hz.mp3\"]";
+  Serial.println("handleGetFiles send ->  value: " + _filelist);
+  _webServer->send(200, "text/plane", _filelist);
 }
 
 void HandleWebpage::handleWebRequests(){
@@ -111,6 +117,7 @@ void HandleWebpage::handleWebRequests(){
 
 bool HandleWebpage::loadFromLittleFS(String path){
   bool returnValue = true;
+
   Serial.println("Load path: " + path);
   String dataType = "text/plain";
 
@@ -134,15 +141,14 @@ bool HandleWebpage::loadFromLittleFS(String path){
     if (_webServer->hasArg("download")) dataType = "application/octet-stream";
 
     if (_webServer->streamFile(dataFile, dataType) != dataFile.size()) {
-      //Serial.println("Error: streamed file has different size!");
-      //returnValue = false;
+      Serial.println("Error: streamed file has different size!");
     }
     dataFile.close();
   }
   else
   {
-    Serial.println("Error: Path does not exist and will be redirect to root:");
-    Serial.println(path);
+    //Serial.println("Error: Path does not exist and will be redirect to root:");
+    Serial.printf("Ignore path %s\n", path.c_str());
     returnValue = loadFromLittleFS("/");
   }
   return returnValue;
@@ -150,23 +156,17 @@ bool HandleWebpage::loadFromLittleFS(String path){
 
 void HandleWebpage::setupHandleWebpage()
 {
-    // replay to all requests with same HTML
+  // replay to all requests with same HTML
   _webServer->onNotFound(std::bind(&HandleWebpage::handleWebRequests, this));
 
   // replay to all requests with same HTML
   //Information about using std::bind -> https://github.com/esp8266/Arduino/issues/1711
 
   _webServer->on("/", HTTP_GET, std::bind(&HandleWebpage::handleRoot, this));
-  _webServer->on("/getValues", HTTP_GET, std::bind(&HandleWebpage::handleGetValues, this));
-  _webServer->on("/playSound", HTTP_GET, std::bind(&HandleWebpage::handlePlaySound, this));
-  _webServer->on("/setGain", HTTP_POST, std::bind(&HandleWebpage::handleSetGain, this));
-  //webServer.on("/config/changed", HTTP_POST, configChanged);
+  _webServer->on("/getFiles", HTTP_GET, std::bind(&HandleWebpage::handleGetFiles, this));
+  _webServer->on("/playSound", HTTP_POST, std::bind(&HandleWebpage::handlePlaySound, this));
+  _webServer->on("/stopSound", HTTP_POST, std::bind(&HandleWebpage::handleStopSound, this));
   _webServer->begin();
-}
-
-void HandleWebpage::sendSuccess()
-{
-  _webServer->send(200, "text/plane", "{\"success\": true}");
 }
 
 void HandleWebpage::handleClient()

@@ -4,11 +4,20 @@
 #include "handleAudio.h"
 #include "handleWebpage.h"
 #include "LittleFS.h"
+#include <SD.h>
+
+// You may need a fast SD card. Set this as high as it will work (40MHz max).
+#define SPI_SPEED SD_SCK_MHZ(35)
 
 //declaration of needed instances
 HandleAudio *handleAudio;
 HandleWebpage *handleWebpage;
-   
+
+File dir;
+unsigned long milliTime;
+unsigned long lastMilliTime = 0;
+String filelist;
+
 void setup()
 {
     Serial.begin(115200);
@@ -28,22 +37,60 @@ void setup()
         Serial.print("Error: Could not start LittleFS!\n");
     }
 
-    handleWebpage = new HandleWebpage();
+    Serial.print("Initializing SD card...");
+    if (!SD.begin(16, SPI_SPEED))
+    {
+        Serial.println("initialization failed!");
+        filelist = "[]";
+    }
+    else
+    {
+        Serial.println("initialization done.");
+        dir = SD.open("/");
+        Serial.println("Start searching of mp3 files...");
+        bool isFile = true;
+        filelist = "[";
+        int filecount = 0;
+        while(isFile)
+        {
+            File file = dir.openNextFile();
+            if (file)
+            {
+                if (String(file.name()).endsWith(".mp3"))
+                {
+                    Serial.printf("\t%s\n", file.name());
+                    if (filecount == 0)
+                    {
+                        filelist = filelist +  "\"" + file.name() + "\"";
+                    }
+                    else
+                    {
+                        filelist = filelist + ", \"" +  file.name() + "\"";
+                    }
+                    filecount++;
+                }
+            }
+            else
+            {
+                isFile = false;
+                Serial.println("File search done");
+            }
+        }
+        filelist = filelist + "]";
+    }
+    
+
+    handleWebpage = new HandleWebpage(filelist);
     handleAudio = new HandleAudio();
 
-    handleAudio->setCallBackSoundIsDone(handleWebpage->sendSuccess);
-    handleWebpage->setCallBackSetGain(handleAudio->setGain);
-    handleWebpage->setCallBackGetGain(handleAudio->getGain);
     handleWebpage->setCallBackPlaySound(handleAudio->playSound);
+    handleWebpage->setCallBackStopSound(handleAudio->stopSound);
     
     handleWebpage->setupHandleWebpage();
 
     WiFi.mode(WIFI_AP);
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-    WiFi.softAP("TestI2S");
-
-    
-    
+    WiFi.softAP("SoundBox");
 
     // if DNSServer is started with "*" for domain name, it will reply with
     // provided IP to all DNS request
@@ -56,5 +103,16 @@ void loop()
     {
         dnsServer.processNextRequest();
         handleWebpage->handleClient();
+    }
+    else
+    {
+        milliTime = millis();
+        if((milliTime - lastMilliTime) > 10)
+        {
+            lastMilliTime = milliTime;
+            dnsServer.processNextRequest();
+            handleWebpage->handleClient();
+        }
+        
     }
 }
