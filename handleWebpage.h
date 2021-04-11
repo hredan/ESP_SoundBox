@@ -35,6 +35,8 @@ class HandleWebpage
     //C++ version of: typedef void (*InputEvent)(const char*)
     using CallBackPlaySound = void (*)(String filename, int volume);
     using CallBackStopSound = void (*)();
+    using CallBackSetMaxGain = void (*)(uint8_t maxGain);
+
     public:
         HandleWebpage(String filelist);
         void setupHandleWebpage();
@@ -44,16 +46,20 @@ class HandleWebpage
         //CallBacks
         void setCallBackPlaySound(CallBackPlaySound callBackPlaySound);
         void setCallBackStopSound(CallBackStopSound callBackStopSound);
+        void setCallBackSetMaxGain(CallBackSetMaxGain callBackSetMaxGain);
 
     private:
         CallBackPlaySound _callBackPlaySound = nullptr;
         CallBackStopSound _callBackStopSound = nullptr;
+        CallBackSetMaxGain _callBackSetMaxGain = nullptr;
+
         String _filelist;
         void handleRoot();
         void handleWebRequests();
         void handlePlaySound();
         void handleStopSound();
         void handleGetFiles();
+        void handleSetMaxGain();
 
         bool loadFromLittleFS(String path);
         static ESP8266WebServer *_webServer;   

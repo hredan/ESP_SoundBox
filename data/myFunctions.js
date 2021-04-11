@@ -29,6 +29,10 @@ $('#list').on('click', '.playSound', function(){
 
 
 var UiFunc = {
+    save : function(){
+
+    },
+
     setSliders : function  (jsonAnswer){
         $("#sliderGain").val(jsonAnswer.gain).slider('refresh');
     },

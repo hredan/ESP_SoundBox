@@ -18,6 +18,11 @@ void HandleWebpage::setCallBackStopSound(CallBackStopSound callBackStopSound)
   _callBackStopSound = callBackStopSound;
 }
 
+void HandleWebpage::setCallBackSetMaxGain(CallBackSetMaxGain callBackSetMaxGain)
+{
+  _callBackSetMaxGain = callBackSetMaxGain;
+}
+
 void HandleWebpage::setCallBackPlaySound(CallBackPlaySound callBackPlaySound)
 {
   _callBackPlaySound = callBackPlaySound;
@@ -32,6 +37,30 @@ void HandleWebpage::handleStopSound() {
   }
   else
   {
+    _webServer->send(200, "text/plane", "{\"success\": false}");
+  }
+}
+
+void HandleWebpage::handleSetMaxGain()
+{
+  Serial.println("handleSetMaxGain" + _webServer->arg("plain"));
+  if(_webServer->hasArg("maxGain"))
+  {
+    uint8_t maxGain = _webServer->arg("maxGain").toInt();
+    if (_callBackSetMaxGain != nullptr)
+    {
+      _callBackSetMaxGain(maxGain);
+      _webServer->send(200, "text/plane", "{\"success\": true}");
+    }
+    else
+    {
+      Serial.println("Error: _callBackSetMaxGain ==nullptr");
+      _webServer->send(200, "text/plane", "{\"success\": false}");
+    }
+  }
+  else
+  {
+    Serial.println("Error handlePlaySound: missing argument maxGain!");
     _webServer->send(200, "text/plane", "{\"success\": false}");
   }
 }
@@ -166,6 +195,7 @@ void HandleWebpage::setupHandleWebpage()
   _webServer->on("/getFiles", HTTP_GET, std::bind(&HandleWebpage::handleGetFiles, this));
   _webServer->on("/playSound", HTTP_POST, std::bind(&HandleWebpage::handlePlaySound, this));
   _webServer->on("/stopSound", HTTP_POST, std::bind(&HandleWebpage::handleStopSound, this));
+  _webServer->on("/setMaxGain", HTTP_POST, std::bind(&HandleWebpage::handleSetMaxGain, this));
   _webServer->begin();
 }
 

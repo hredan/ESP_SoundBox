@@ -85,6 +85,7 @@ void setup()
 
     handleWebpage->setCallBackPlaySound(handleAudio->playSound);
     handleWebpage->setCallBackStopSound(handleAudio->stopSound);
+    handleWebpage->setCallBackSetMaxGain(handleAudio->setMaxGain);
     
     handleWebpage->setupHandleWebpage();
 
