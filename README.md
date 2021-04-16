@@ -9,3 +9,11 @@
 
 
 ![ESP Sound Player Circuit Diagram](https://github.com/hredan/ESP_SoundBox/blob/main/CircuitDiagram/ESP8266_Audio_Player_Schaltplan.png)
+
+# Replace SD Card Reader by modified SD Adepter
+
+It is also possible to use an SD Card Adapter. You have only add pins to the adapter an then you can use it on the breadboard.
+
+![Modified SD Adapter](https://github.com/hredan/ESP_SoundBox/blob/main/CircuitDiagram/Modifed_SD_Adapter.png)
+
+A link to the Label you can find ![here](https://github.com/hredan/ESP_SoundBox/blob/main/CircuitDiagram/SD_AdapterLabel.pdf).
