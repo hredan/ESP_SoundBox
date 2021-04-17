@@ -46,7 +46,7 @@ void HandleWebpage::handleSetMaxGain()
   Serial.println("handleSetMaxGain" + _webServer->arg("plain"));
   if(_webServer->hasArg("maxGain"))
   {
-    uint8_t maxGain = _webServer->arg("maxGain").toInt();
+    float maxGain = _webServer->arg("maxGain").toFloat();
     if (_callBackSetMaxGain != nullptr)
     {
       _callBackSetMaxGain(maxGain);

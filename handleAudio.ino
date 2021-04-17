@@ -12,14 +12,14 @@ HandleAudio::HandleAudio()
 };
 
 //default volume value = 2
-uint8_t HandleAudio:: _maxGain = 4;
+float HandleAudio:: _maxGain = 0.1;
 bool HandleAudio::_soundIsPlaying = false;
 
 AudioGeneratorMP3 * HandleAudio::_audioGen = nullptr;
 AudioFileSourceSD * HandleAudio::_source = nullptr;
 AudioOutputI2S * HandleAudio::_out = nullptr;
 
-void HandleAudio::setMaxGain(uint8_t maxGain)
+void HandleAudio::setMaxGain(float maxGain)
 {
     _maxGain = maxGain;
 }
@@ -59,6 +59,11 @@ void HandleAudio::playSound(String filename, int volume)
         }
         //max gain value < 4
         float gain = volume * _maxGain / 100.0;
+        if (gain >= 4.0)
+        {
+            gain = 3.99;
+        }
+
         _out->SetGain(gain);
         Serial.println("use gain to play sound: " + String(gain));
         _source->open(filename.c_str());

@@ -35,7 +35,7 @@ class HandleWebpage
     //C++ version of: typedef void (*InputEvent)(const char*)
     using CallBackPlaySound = void (*)(String filename, int volume);
     using CallBackStopSound = void (*)();
-    using CallBackSetMaxGain = void (*)(uint8_t maxGain);
+    using CallBackSetMaxGain = void (*)(float maxGain);
 
     public:
         HandleWebpage(String filelist);
