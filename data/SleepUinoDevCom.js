@@ -2,8 +2,7 @@
 var SleepUinoDevCom = {
     //needed for Mockup Communication (in case enableServerCom = false)
     enableServerCom : true,
-    titleList : [],
-
+    
     setGainFactor: function(gainFactor){
         var jsonData = {"maxGain": gainFactor}
         if (this.enableServerCom)
@@ -19,36 +18,37 @@ var SleepUinoDevCom = {
         }
     },
 
-    getTitleList : function(){
+    saveData: function(jsonData){
         if (this.enableServerCom)
         {
-            $.ajax({url: "/getFiles", type: "GET", dataType: "json"})
-                .done(function(jsonResult){
-                    console.log("Receive File list->" + JSON.stringify(jsonResult));
-                    SleepUinoDevCom.titleList = jsonResult;
-                    if (SleepUinoDevCom.titleList.length > 0)
-                    {
-                        UiFunc.setFirstEntry(true);
-                    }
-                    else
-                    {
-                        UiFunc.setFirstEntry(false);
-                    }
+            $.ajax({url: "/saveData", type: "POST", dataType: "text", data: JSON.stringify(jsonData)})
+            .success(function(result){
+                console.log(result);
+            });
+        }
+        else
+        {
+            console.log("FakeCom: saveData-> " + JSON.stringify(jsonData))
+        }
+    },
+
+    getData : function(){
+        if (this.enableServerCom)
+        {
+            $.ajax({url: "/getData", type: "GET", dataType: "text"})
+                .done(function(data){
+                    console.log("Receive data->" + data);
+                    var jsonResult = JSON.parse(data);
+                    UiFunc.setData(jsonResult);
                 });
         }
         else
         {
-            SleepUinoDevCom.titleList = ["01.mp3", "02.mp3", "04.mp3"];
-            //SleepUinoDevCom.titleList = [];
-
-            if (SleepUinoDevCom.titleList.length > 0)
-            {
-                UiFunc.setFirstEntry(true);
-            }
-            else
-            {
-                UiFunc.setFirstEntry(false);
-            }
+            var jsonStr = '{"config":{"gainFactor":"1.0","playList":[{"volume":"25","soundFile":"02.mp3"},{"volume":"10","soundFile":"03.mp3"}]}'+
+                        ',"files":["01.mp3","02.mp3","03.mp3"]}';
+            var jsonResult = JSON.parse(jsonStr);
+            console.log("FakeCom: Receive data->" + JSON.stringify(jsonResult));
+            UiFunc.setData(jsonResult);
         }
     },
 

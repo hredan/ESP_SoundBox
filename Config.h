@@ -1,11 +1,7 @@
 #ifndef HANDLE_CONFIG_H_INCLUDED
 #define HANDLE_CONFIG_H_INCLUDED
 
-
-#define 
-
 //define constant values
-const int GAIN_MAX = 100;
-
+const String CONFIG_FILE_NAME = "saveConfig.json"; 
 
 #endif //HANDLE_CONFIG_H_INCLUDED
