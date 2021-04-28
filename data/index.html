@@ -47,7 +47,7 @@
                     <button id="addButton" class="ui-btn ui-corner-all" onclick="UiFunc.addItem()">Add</button>
                     <button id="saveButton" class="ui-btn ui-corner-all" onclick="UiFunc.save()">Save</button>
                     <label for="gainFactor">Gain Factor</label>
-                    <select name="gainFactor" class="gainFactor" onchange="SleepUinoDevCom.setGainFactor(this.value)">
+                    <select name="gainFactor" id="gainFactor" class="gainFactor" onchange="SleepUinoDevCom.setGainFactor(this.value)">
                         <option value="0.1">0.1</option>
                         <option value="0.3">0.3</option>
                         <option value="1.0">1.0</option>
@@ -69,10 +69,7 @@
         //SleepUinoDevCom.enableServerCom = false;
 
         //read an set values
-        SleepUinoDevCom.getTitleList();
+        SleepUinoDevCom.getData();
     };
 </script>
 </html>
-<!--
-    [[21, "100", "ledMoonBrightness"], [29, "100", "ledSunBrightness"]]
--->

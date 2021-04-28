@@ -23,7 +23,7 @@
 
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include "LittleFS.h"
+#include <SD.h>
 
 const byte DNS_PORT = 53;
 IPAddress apIP(172, 217, 28, 1);
@@ -58,8 +58,9 @@ class HandleWebpage
         void handleWebRequests();
         void handlePlaySound();
         void handleStopSound();
-        void handleGetFiles();
+        void handleGetData();
         void handleSetMaxGain();
+        void handleSaveData();
 
         bool loadFromLittleFS(String path);
         static ESP8266WebServer *_webServer;   

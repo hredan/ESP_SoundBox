@@ -1,5 +1,6 @@
 
 #include "handleWebpage.h"
+#include "Config.h"
 
 ESP8266WebServer* HandleWebpage::_webServer = nullptr;
 
@@ -39,6 +40,15 @@ void HandleWebpage::handleStopSound() {
   {
     _webServer->send(200, "text/plane", "{\"success\": false}");
   }
+}
+
+void HandleWebpage::handleSaveData()
+{
+  String jsonSaveData = _webServer->arg("plain");
+  Serial.printf("handleSaveData: %s\n", jsonSaveData.c_str());
+  File file = SD.open(CONFIG_FILE_NAME, (sdfat::O_WRONLY | sdfat::O_CREAT));
+  file.write(jsonSaveData.c_str());
+  file.close();
 }
 
 void HandleWebpage::handleSetMaxGain()
@@ -118,10 +128,24 @@ void HandleWebpage::handlePlaySound() {
   }
 }
 
-void HandleWebpage::handleGetFiles() {  
+void HandleWebpage::handleGetData() {  
   //String jsonAnswer = "[\"test.mp3\",	\"ff-16b-2c-44100hz.mp3\"]";
-  Serial.println("handleGetFiles send ->  value: " + _filelist);
-  _webServer->send(200, "text/plane", _filelist);
+  Serial.println("handleGetData send ->  value: " + _filelist);
+  
+  String configJson = "{\"gainFactor\": 0.1, \"playList\": []}";
+
+  if (SD.exists(CONFIG_FILE_NAME))
+  {
+    File configFile = SD.open(CONFIG_FILE_NAME, FILE_READ);
+    configJson = configFile.readString();
+    configFile.close();
+  }
+  
+  String dataJson = "{\"config\":" + configJson + ", \"files\":" + _filelist + "}";
+
+  _webServer->send(200, "text/plane", dataJson);
+
+
 }
 
 void HandleWebpage::handleWebRequests(){
@@ -192,10 +216,11 @@ void HandleWebpage::setupHandleWebpage()
   //Information about using std::bind -> https://github.com/esp8266/Arduino/issues/1711
 
   _webServer->on("/", HTTP_GET, std::bind(&HandleWebpage::handleRoot, this));
-  _webServer->on("/getFiles", HTTP_GET, std::bind(&HandleWebpage::handleGetFiles, this));
+  _webServer->on("/getData", HTTP_GET, std::bind(&HandleWebpage::handleGetData, this));
   _webServer->on("/playSound", HTTP_POST, std::bind(&HandleWebpage::handlePlaySound, this));
   _webServer->on("/stopSound", HTTP_POST, std::bind(&HandleWebpage::handleStopSound, this));
   _webServer->on("/setMaxGain", HTTP_POST, std::bind(&HandleWebpage::handleSetMaxGain, this));
+  _webServer->on("/saveData", HTTP_POST, std::bind(&HandleWebpage::handleSaveData, this));
   _webServer->begin();
 }
 

@@ -15,22 +15,52 @@ $('#list').on('click', '.deleteMe', function(){
 
 $('#list').on('click', '.playSound', function(){
     var entry = $(this).parent();
-    var sliderVolume = entry.find(".sliderItem").eq(0);
-    var selectionTitle = entry.find(".titleSelectItem").eq(1);
-
-    var volume = sliderVolume.val();
-    var titleValue = selectionTitle.val();
-    var titleName = SleepUinoDevCom.titleList[titleValue]
-    
-    var jsonInput = {"volume" : volume, "soundFile" : titleName}
-
+    var jsonInput = UiFunc.getPLayData(entry);
     SleepUinoDevCom.playSound(jsonInput);
 });
 
 
 var UiFunc = {
-    save : function(){
+    titleList : [],
 
+    
+    setPlayData : function(parentElement, titleIndex, volume){
+        //set volume data from slider
+        var sliderVolume = parentElement.find(".sliderItem").eq(0);
+        var volume = sliderVolume.val(volume).slider("refresh");
+
+        //set title name of song
+        var selectionTitle = parentElement.find(".titleSelectItem").eq(1);
+        var titleValue = selectionTitle.val(titleIndex).selectmenu("refresh");
+    },
+
+    getPLayData : function(parentElement){
+        //get volume data from slider
+        var sliderVolume = parentElement.find(".sliderItem").eq(0);
+        var volume = sliderVolume.val();
+        
+        //get selected title name of song
+        var selectionTitle = parentElement.find(".titleSelectItem").eq(1);
+        var titleValue = selectionTitle.val();
+        var titleName = UiFunc.titleList[titleValue];
+
+        //return dictionary 
+        return {"volume" : volume, "soundFile" : titleName};
+    },
+
+    save : function(){
+        var songArr = [];
+        var currentList = $(".soundItem");
+        console.log(`save: ${currentList.length} entries`);
+        for (let i=0; i < currentList.length; i++)
+        {
+            var playData = UiFunc.getPLayData(currentList.eq(i));
+            songArr.push(playData)
+        }
+
+        var gainFactor = $("#gainFactor").val();
+
+        SleepUinoDevCom.saveData({"gainFactor": gainFactor, "playList": songArr});
     },
 
     setSliders : function  (jsonAnswer){
@@ -76,7 +106,7 @@ var UiFunc = {
                 <a class='deleteMe'></a>
             </li>`;
         
-        var titleList = SleepUinoDevCom.titleList;
+        var titleList = UiFunc.titleList;
         
         var titleEntries = "";
         for (let i=0; i < titleList.length; i++)
@@ -92,5 +122,48 @@ var UiFunc = {
         //$('.sliderItem').slider();
         //$('.sliderItem').textinput();
         $('#list').trigger("create")        
+    },
+
+    setData : function(jsonData)
+    {
+        UiFunc.titleList = jsonData.files;
+        var config = jsonData.config;
+        
+        if (jsonData.files.length == 0)
+        {
+            UiFunc.setFirstEntry(false);
+        }
+        else
+        {
+            var playList = config.playList;
+            if (playList.length > 0)
+            {
+                for (let i=0; i < playList.length; i++)
+                {
+                    var soundEntry = playList[i];
+                    var volume = soundEntry.volume;
+                    var index = UiFunc.titleList.indexOf(soundEntry.soundFile)
+                    if (index != -1)
+                    {
+                        UiFunc.addItem();
+                        //set values
+                        var parent = $(".soundItem").last();
+                        UiFunc.setPlayData(parent, index, volume);
+                    }
+
+                }
+            }
+            else
+            {
+                UiFunc.setFirstEntry(true);
+            }
+        }
+
+        //set GainFactor
+        var gainFactor = config.gainFactor;
+        $("#gainFactor").val(gainFactor).selectmenu("refresh");
+
+
+
     }
 };
