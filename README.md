@@ -1,6 +1,11 @@
 ![SleepUINO_Logo_PreDev](https://user-images.githubusercontent.com/48091357/111156537-25298a00-8596-11eb-8726-1fe5cd7bed93.png)
 
 # ESP8266 Sound Player
+## What you need
+![SETUP](https://user-images.githubusercontent.com/48091357/134401159-6307f055-6e4c-4fda-816b-2a988379b693.gif)
+
+## Build up
+![BuildUp_GIF](https://user-images.githubusercontent.com/48091357/134401260-bcce7169-7a8a-4b67-bf06-51909ca59b8d.gif)
 
 
 # Circuit Diagram
