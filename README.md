@@ -9,7 +9,7 @@
 4. MAX98357A I2S 3W Class D DAC Decoder Audio (up to US $2.53)
 5. Micro SD Memory Shield Modul SPI (up to US $0.83) or a [modified SD Adapter](https://github.com/hredan/ESP_Sound_Player#replace-sd-card-reader-by-modified-sd-adapter) ($0.00)
 
-Prices checked by AliExpress
+The price examples comes from AliExpress. You will find the hardware also on Ebay, Amazon or by local hardware dealers.
 
 ## Build up
 ![BuildUp_GIF](https://user-images.githubusercontent.com/48091357/134401260-bcce7169-7a8a-4b67-bf06-51909ca59b8d.gif)
