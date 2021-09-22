@@ -3,10 +3,21 @@
 # ESP8266 Sound Player
 ## What you need
 ![SETUP](https://user-images.githubusercontent.com/48091357/134401159-6307f055-6e4c-4fda-816b-2a988379b693.gif)
+1. Mini Breadbord 8,5 CM x 5,5 CM 400 pins DIY (up to US $1.43)
+2. Jumper Wire (up to US $0.76)
+3. WeMos D1 Mini PRO V3 (up to US $1.37)
+4. MAX98357A I2S 3W Class D DAC Decoder Audio (up to US $2.53)
+5. Micro SD Memory Shield Modul SPI (up to US $0.83) or a [modified SD Adapter](https://github.com/hredan/ESP_Sound_Player#replace-sd-card-reader-by-modified-sd-adapter) ($0.00)
+
+Prices checked by AliExpress
 
 ## Build up
 ![BuildUp_GIF](https://user-images.githubusercontent.com/48091357/134401260-bcce7169-7a8a-4b67-bf06-51909ca59b8d.gif)
-
+1. Build up see [Circuit Diagram](https://github.com/hredan/ESP_Sound_Player/blob/main/README.md#circuit-diagram)
+1. Flash the ESP Memory
+1. Connect it with a speaker
+1. Open the WLAN SSID ESPSoundPlayer
+1. After this the Web Interace will start on your mobile device
 
 # Circuit Diagram
 
